@@ -1,0 +1,96 @@
+title: Sprinklers
+views:
+  - title: B-Hyve Controller
+    path: bhyve
+    icon: mdi:sprinkler-variant
+    badges: []
+    cards:
+      # ── Header ──────────────────────────────────────
+      - type: markdown
+        content: |
+          # 🌿 B-Hyve Sprinkler Controller
+          **Orbit B-Hyve XD** — Direct Bluetooth control, no cloud required.
+
+          ⚠️ *Do not update the B-Hyve firmware — it may break this integration.*
+
+      # ── Zone Toggles ───────────────────────────────
+      - type: glance
+        title: Zone Status
+        show_state: true
+        columns: 4
+        entities:
+          - entity: switch.bhyve_zone_1
+            name: Zone 1
+            icon: mdi:sprinkler-variant
+            tap_action:
+              action: toggle
+          - entity: switch.bhyve_zone_2
+            name: Zone 2
+            icon: mdi:sprinkler-variant
+            tap_action:
+              action: toggle
+          - entity: switch.bhyve_zone_3
+            name: Zone 3
+            icon: mdi:sprinkler-variant
+            tap_action:
+              action: toggle
+          - entity: switch.bhyve_zone_4
+            name: Zone 4
+            icon: mdi:sprinkler-variant
+            tap_action:
+              action: toggle
+
+      # ── Individual Zone Controls ────────────────────
+      - type: entities
+        title: Zone Controls
+        show_header_toggle: false
+        entities:
+          - entity: switch.bhyve_zone_1
+            name: "💧 Zone 1"
+            icon: mdi:sprinkler-variant
+          - entity: switch.bhyve_zone_2
+            name: "💧 Zone 2"
+            icon: mdi:sprinkler-variant
+          - entity: switch.bhyve_zone_3
+            name: "💧 Zone 3"
+            icon: mdi:sprinkler-variant
+          - entity: switch.bhyve_zone_4
+            name: "💧 Zone 4"
+            icon: mdi:sprinkler-variant
+          - type: divider
+          - type: button
+            name: "🛑 Stop All Zones"
+            icon: mdi:stop-circle
+            tap_action:
+              action: call-service
+              service: switch.turn_off
+              target:
+                entity_id:
+                  - switch.bhyve_zone_1
+                  - switch.bhyve_zone_2
+                  - switch.bhyve_zone_3
+                  - switch.bhyve_zone_4
+
+      # ── Scheduling (placeholder for future) ─────────
+      - type: markdown
+        content: |
+          ### ⏰ Scheduled Watering
+          *Coming soon — soil sensor integration will automate watering
+          based on moisture levels.*
+
+          Future: connect soil moisture sensors → trigger zones
+          automatically when soil gets dry.
+
+      # ── Device Info ─────────────────────────────────
+      - type: markdown
+        content: |
+          ### 📡 Device Info
+          | | |
+          |---|---|
+          | **Model** | Orbit B-Hyve XD (HT-34) |
+          | **MAC** | `XX:XX:XX:XX:XX:XX` |
+          | **Firmware** | 0107 |
+          | **Zones** | 4 |
+          | **Protocol** | BLE (AES-128 encrypted) |
+          | **Cloud** | Not required |
+          | **Default Duration** | 10 minutes |

@@ -1,0 +1,18 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Orbit B-Hyve BLE Sprinkler",
+        "description": "Enter your B-Hyve device details.\n\nTo get your network key, run the included `bhyve.py setup` wizard from the scripts/ directory.\n\nDiscovered devices: {discovered}\n\nWARNING: Do NOT update your B-Hyve firmware — it may break compatibility.",
+        "data": {
+          "address": "BLE MAC Address",
+          "network_key": "Network Key (32 hex chars)",
+          "num_zones": "Number of zones"
+        }
+      }
+    },
+    "error": {
+      "invalid_key": "Network key must be 32 hex characters (16 bytes)"
+    }
+  }
+}

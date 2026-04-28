@@ -1,0 +1,19 @@
+set_duration:
+  name: Set watering duration
+  description: Set the default watering duration for a zone switch
+  target:
+    entity:
+      domain: switch
+      integration: orbit_bhyve_ble
+  fields:
+    duration:
+      name: Duration
+      description: Watering duration in seconds
+      required: true
+      example: 300
+      selector:
+        number:
+          min: 10
+          max: 86400
+          step: 10
+          unit_of_measurement: seconds

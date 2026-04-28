@@ -1,0 +1,17 @@
+{
+  "domain": "orbit_bhyve_ble",
+  "name": "Orbit B-Hyve BLE Sprinkler",
+  "version": "1.0.0",
+  "config_flow": true,
+  "documentation": "https://github.com/PLACEHOLDER/Orbit_B-Hyve_4Port_Controller",
+  "issue_tracker": "https://github.com/PLACEHOLDER/Orbit_B-Hyve_4Port_Controller/issues",
+  "dependencies": ["bluetooth"],
+  "bluetooth": [
+    {
+      "service_uuid": "0000fe32-0000-1000-8000-00805f9b34fb"
+    }
+  ],
+  "codeowners": [],
+  "iot_class": "local_polling",
+  "requirements": ["bleak-retry-connector>=3.0.0"]
+}

@@ -98,13 +98,33 @@ def orbit_get_devices(token):
 
 
 def orbit_get_network_key(token, topology_id):
+    # Orbit renamed the endpoint and the response field on accounts migrated
+    # to the newer schema. Try legacy paths first so behavior is unchanged
+    # for accounts still on the old schema; fall through to current names.
     import requests
-    resp = requests.get(
-        f"{ORBIT_API_BASE}/network_topologies/{topology_id}",
-        headers={"orbit-api-key": token, "orbit-app-id": ORBIT_APP_ID},
-    )
-    resp.raise_for_status()
-    return resp.json().get("network_key")
+    headers = {"orbit-api-key": token, "orbit-app-id": ORBIT_APP_ID}
+    candidate_paths = [
+        f"/network_topologies/{topology_id}",
+        f"/meshes/{topology_id}",
+        f"/networks/{topology_id}",
+    ]
+    last_error = None
+    for path in candidate_paths:
+        url = f"{ORBIT_API_BASE}{path}"
+        try:
+            resp = requests.get(url, headers=headers)
+            if resp.status_code == 404:
+                continue
+            resp.raise_for_status()
+            body = resp.json()
+            key = body.get("network_key") or body.get("ble_network_key")
+            if key:
+                return key
+        except Exception as e:
+            last_error = e
+    if last_error:
+        raise last_error
+    raise RuntimeError("No candidate endpoint returned a network_key")
 
 
 # ─── Crypto ──────────────────────────────────────────────────────────────
@@ -226,7 +246,7 @@ def cmd_setup(args):
         fw = dev.get("firmware_version", "?")
         hw = dev.get("hardware_version", "?")
         stations = dev.get("num_stations", "?")
-        topology_id = dev.get("network_topology_id", "")
+        topology_id = dev.get("network_topology_id") or dev.get("mesh_id", "")
         device_id = dev.get("id", "")
 
         print(f"  [{i+1}] {name}")

@@ -71,6 +71,23 @@ views:
                   - switch.bhyve_zone_3
                   - switch.bhyve_zone_4
 
+      # ── Run Times (auto-created number entities) ────
+      - type: entities
+        title: Run Times
+        show_header_toggle: false
+        entities:
+          - entity: number.bhyve_zone_1_runtime
+            name: "⏱️ Zone 1 run time"
+          - entity: number.bhyve_zone_2_runtime
+            name: "⏱️ Zone 2 run time"
+          - entity: number.bhyve_zone_3_runtime
+            name: "⏱️ Zone 3 run time"
+          - entity: number.bhyve_zone_4_runtime
+            name: "⏱️ Zone 4 run time"
+          - type: divider
+          - entity: number.bhyve_duration
+            name: "🔒 Max run time (device ceiling)"
+
       # ── Scheduling (placeholder for future) ─────────
       - type: markdown
         content: |

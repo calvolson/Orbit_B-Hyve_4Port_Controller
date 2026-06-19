@@ -13,7 +13,7 @@ from bleak import BleakClient
 from bleak_retry_connector import establish_connection
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-from .const import AES_CHAR, WRITE_CHAR, READ_CHAR, MSG_HEADER
+from .const import AES_CHAR, WRITE_CHAR, READ_CHAR, MSG_HEADER, DEFAULT_DURATION
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,6 +57,11 @@ class BHyveDevice:
         self.address = address
         self.network_key = bytes.fromhex(network_key)
         self.num_zones = num_zones
+        # Device-side run time (seconds) the device is told to run for when a
+        # zone turns on; the device stops itself when it elapses. Set by the
+        # "max run time" number entity, falling back to the default. The
+        # per-valve blueprint can only stop a zone *earlier* than this.
+        self.duration_ceiling = DEFAULT_DURATION
         self._lock = asyncio.Lock()
 
     def _aes_encrypt(self, iv: bytes, counter: int, plaintext: bytes) -> tuple[bytes, int]:

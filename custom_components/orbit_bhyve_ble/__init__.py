@@ -16,7 +16,7 @@ from homeassistant.core import HomeAssistant
 from .bhyve_device import BHyveDevice
 from .const import DOMAIN, CONF_NETWORK_KEY, CONF_NUM_ZONES, DEFAULT_NUM_ZONES
 
-PLATFORMS = [Platform.SWITCH]
+PLATFORMS = [Platform.SWITCH, Platform.NUMBER]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

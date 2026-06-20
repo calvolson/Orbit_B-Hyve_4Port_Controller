@@ -39,7 +39,10 @@ class BHyveBLEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            address = user_input.get(CONF_ADDRESS, self._address)
+            # Normalize to uppercase: HA's Bluetooth manager stores advertised
+            # MACs in uppercase and looks them up case-sensitively, so a
+            # lowercase address would never resolve to a connectable device.
+            address = user_input.get(CONF_ADDRESS, self._address).strip().upper()
             network_key = user_input[CONF_NETWORK_KEY].strip()
             num_zones = user_input.get(CONF_NUM_ZONES, DEFAULT_NUM_ZONES)
 

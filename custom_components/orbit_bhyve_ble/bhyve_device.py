@@ -98,11 +98,26 @@ class BHyveDevice:
 
         _LOGGER.info("B-Hyve %s: looking up BLE device...", self.address)
 
+        # HA's Bluetooth manager keys advertisement history by the MAC exactly
+        # as advertised (uppercase). async_ble_device_from_address does a
+        # case-sensitive lookup, so a lowercase address (e.g. typed manually in
+        # the config flow) silently misses and looks like "not connectable"
+        # even when a proxy has a live connectable advertisement.
+        lookup_address = self.address.upper()
         ble_device = async_ble_device_from_address(
-            self.hass, self.address, connectable=True
+            self.hass, lookup_address, connectable=True
         )
         if ble_device is None:
-            _LOGGER.error("B-Hyve %s not connectable — is it in range?", self.address)
+            from homeassistant.components.bluetooth import async_scanner_count
+
+            connectable_scanners = async_scanner_count(self.hass, connectable=True)
+            _LOGGER.error(
+                "B-Hyve %s not connectable — no connectable advertisement found "
+                "(%d connectable scanner(s) available). Is the device in range "
+                "of a Bluetooth adapter/proxy?",
+                lookup_address,
+                connectable_scanners,
+            )
             return False
 
         _LOGGER.info("B-Hyve %s: found, connecting via HA Bluetooth manager...", self.address)

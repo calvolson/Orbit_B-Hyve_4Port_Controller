@@ -62,6 +62,12 @@ class BHyveDevice:
         # "max run time" number entity, falling back to the default. The
         # per-valve blueprint can only stop a zone *earlier* than this.
         self.duration_ceiling = DEFAULT_DURATION
+        # Per-zone run time (seconds), keyed by 1-indexed zone. Set by the
+        # per-zone "run time" number entities. When a zone has a value > 0 the
+        # switch sends it to the device as that zone's run time; otherwise it
+        # falls back to duration_ceiling. The device stops itself when it
+        # elapses, so this is the value that drives the hardware auto-off.
+        self.zone_runtimes: dict[int, int] = {}
         self._lock = asyncio.Lock()
 
     def _aes_encrypt(self, iv: bytes, counter: int, plaintext: bytes) -> tuple[bytes, int]:

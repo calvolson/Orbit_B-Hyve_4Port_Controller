@@ -114,6 +114,11 @@ class BHyveRuntimeNumber(_BHyveNumberBase):
             ENTITY_ID_FORMAT, f"bhyve_zone_{zone}_runtime", hass=hass
         )
 
+    def _apply_value(self) -> None:
+        # Switch reads device.zone_runtimes[zone] (seconds) when this zone
+        # turns on, falling back to the global ceiling when it is 0.
+        self._device.zone_runtimes[self._zone] = int(self._attr_native_value) * 60
+
 
 class BHyveDurationNumber(_BHyveNumberBase):
     """Device-side run-time ceiling (minutes).

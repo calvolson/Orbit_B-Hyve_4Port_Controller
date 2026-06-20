@@ -66,10 +66,13 @@ class BHyveZoneSwitch(SwitchEntity):
 
     async def async_turn_on(self, **kwargs) -> None:
         """Turn on the sprinkler zone via BLE."""
-        # The device-side run-time ceiling comes from the "Max run time" number
-        # entity (number.bhyve_duration), which keeps device.duration_ceiling
-        # up to date. Falls back to DEFAULT_DURATION before it is set.
-        duration = self._device.duration_ceiling
+        # Use this zone's own run time (number.bhyve_zone_N_runtime) so the
+        # value set per-valve is what the device is told to run for and stops
+        # itself on. When it is 0 ("not set"), fall back to the global "Max run
+        # time" ceiling (number.bhyve_duration -> device.duration_ceiling),
+        # which itself falls back to DEFAULT_DURATION.
+        zone_runtime = self._device.zone_runtimes.get(self._zone, 0)
+        duration = zone_runtime if zone_runtime > 0 else self._device.duration_ceiling
 
         success = await self._device.turn_on(self._zone, duration)
         if success:

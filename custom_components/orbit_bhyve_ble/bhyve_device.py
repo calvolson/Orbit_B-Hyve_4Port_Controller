@@ -12,6 +12,7 @@ import struct
 from bleak import BleakClient
 from bleak_retry_connector import establish_connection
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from homeassistant.exceptions import HomeAssistantError
 
 from .const import AES_CHAR, WRITE_CHAR, READ_CHAR, MSG_HEADER, DEFAULT_DURATION
 
@@ -99,7 +100,14 @@ class BHyveDevice:
         return struct.pack("<H", total & 0xFFFF)
 
     async def _send_command(self, protobuf: bytes) -> bool:
-        """Connect via HA's Bluetooth manager and send an encrypted command."""
+        """Connect via HA's Bluetooth manager and send an encrypted command.
+
+        Returns True on success. Raises HomeAssistantError if the device is
+        unreachable or the BLE exchange fails, so the failure surfaces to the
+        user (service-call error / log) instead of silently looking like a
+        successful command. (asyncio.CancelledError derives from BaseException,
+        so the ``except Exception`` below never swallows task cancellation.)
+        """
         from homeassistant.components.bluetooth import async_ble_device_from_address
 
         _LOGGER.info("B-Hyve %s: looking up BLE device...", self.address)
@@ -117,14 +125,12 @@ class BHyveDevice:
             from homeassistant.components.bluetooth import async_scanner_count
 
             connectable_scanners = async_scanner_count(self.hass, connectable=True)
-            _LOGGER.error(
-                "B-Hyve %s not connectable — no connectable advertisement found "
-                "(%d connectable scanner(s) available). Is the device in range "
-                "of a Bluetooth adapter/proxy?",
-                lookup_address,
-                connectable_scanners,
+            raise HomeAssistantError(
+                f"B-Hyve {lookup_address} not connectable — no connectable "
+                f"advertisement found ({connectable_scanners} connectable "
+                f"scanner(s) available). Is the device in range of a Bluetooth "
+                f"adapter/proxy?"
             )
-            return False
 
         _LOGGER.info("B-Hyve %s: found, connecting via HA Bluetooth manager...", self.address)
         client = None
@@ -164,9 +170,13 @@ class BHyveDevice:
             await asyncio.sleep(2)
             return True
 
+        except HomeAssistantError:
+            raise
+
         except Exception as err:
-            _LOGGER.error("B-Hyve %s: BLE command failed: %s", self.address, err)
-            return False
+            raise HomeAssistantError(
+                f"B-Hyve {self.address}: BLE command failed: {err}"
+            ) from err
 
         finally:
             if client is not None:
